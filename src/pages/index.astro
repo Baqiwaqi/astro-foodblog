@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import { notion } from '../lib/notion/client';
-import type { Post } from '../lib/notion/types';
+import type { Post } from '../types/post';
 
 const response = await notion.databases.query({
       database_id: import.meta.env.NOTION_DATABASE_ID,
@@ -15,15 +15,14 @@ const posts = response.results as Post[]
    <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
          {posts.map((post: Post) => {
             return (
-               <a href={`/post/${post.id}`}>
-                  <div class="flex flex-col p-4 border border-secondary rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out cursor-pointer">
+               <a
+                href={`/recipe/${post.id}`} 
+                class="flex flex-col p-4 border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out cursor-pointer">
                      <img
-                        class="rounded-lg"
+                        class="rounded-lg max-h-64 w-full object-cover"
                         src={post.properties.URL.url}
+                        height="200"
                         alt={post.id}
-                        width={486}
-                        height={132}
-                        style={{ objectFit: 'cover' }}
                      />
                      <h2 class='text-lg font-semibold mb-2'
                      >{post.properties.name.title[0].plain_text}</h2>
@@ -31,7 +30,6 @@ const posts = response.results as Post[]
                      <span class="line-clamp-2 text-sm text-ellipses ">
                         {post.properties.description.rich_text[0].plain_text}
                      </span>
-                  </div>
                </a>
             )
          })}
