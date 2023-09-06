@@ -37,20 +37,18 @@ let listNumber = 0
 ---
 
 <Layout title={post.properties.name.title[0].plain_text}>
-   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+   <div class="flex flex-col md:flex-row gap-12">
       <img
-         class="rounded-lg"
+         class="rounded-lg max-h-[586px]"
          src={post.properties.URL.url}
          alt={post.id}
-         width={486}
-         height={686}
          style={{ objectFit: 'cover' }}
       />
       <div>
          <h1 class="text-6xl font-bold py-6">
             {post.properties.name.title[0].plain_text}
          </h1>
-         <span class="line-clamp-2 text-sm text-ellipses">
+         <span class="text-sm text-ellipses">
             {post.properties.description.rich_text[0].plain_text}
          </span>
          <div class="flex gap-12 py-6">
@@ -85,47 +83,38 @@ let listNumber = 0
             </div>
          </div>
       </div>
-      <div class="py-6">
-         {
-            blocks.map((block) => {
-               if (block.type !== 'numbered_list_item') {
-                  listNumber = 0
-               }
-
-               switch (block.type) {
-                  case 'paragraph':
-                     return <p class="py-6 text-sm">{block.paragraph.rich_text[0]?.plain_text}</p>
-                  case 'heading_1':
-                     return <h1 class="text-3xl font-bold py-4">{block.heading_1.rich_text[0].plain_text}</h1>
-                  case 'heading_2':
-                     return <h2 class="text-2xl font-bold py-4">{block.heading_2.rich_text[0].plain_text}</h2>
-                  case 'heading_3':
-                     return <h3 class="text-xl font-bold py-2">{block.heading_3.rich_text[0].plain_text}</h3>
-                  case 'bulleted_list_item':
-                     return <p class="py-1 text-sm">{block.bulleted_list_item.rich_text[0]?.plain_text}</p>
-                  case 'numbered_list_item':
-                     return (
-                        listNumber++,
-                        (
-                           <span class="py-1 text-sm">
-                              {listNumber}. {block.numbered_list_item.rich_text[0]?.plain_text} <br />
-                           </span>
-                        )
-                     )
-                  default:
-                     return null
-               }
-            })
-         }
-      </div>
    </div>
+   <div class="py-6">
+      {
+         blocks.map((block) => {
+            if (block.type !== 'numbered_list_item') {
+               listNumber = 0
+            }
 
-   <!-- 
-const Paragraph = ({ block }: { block: Block }) => <p className="py-6 text-sm" key={block.id}>{block.paragraph.rich_text[0]?.plain_text}</p>;
-const Heading1 = ({ block }: { block: Block }) => <h1 className="text-3xl font-bold py-4" key={block.id}>{block.heading_1.rich_text[0].plain_text}</h1>;
-const Heading2 = ({ block }: { block: Block }) => <h2 className="text-2xl font-bold py-4" key={block.id}>{block.heading_2.rich_text[0].plain_text}</h2>;
-const Heading3 = ({ block }: { block: Block }) => <h3 className="text-xl font-bold py-2" key={block.id}>{block.heading_3.rich_text[0].plain_text}</h3>;
-const BulletedListItem = ({ block }: { block: Block }) => <p className="py-1 text-sm" key={block.id}>{block.bulleted_list_item.rich_text[0]?.plain_text}</p>;
-const NumberedListItem = ({ block, listNumber }: { block: Block, listNumber: number }) => <span className="py-1 text-sm" key={block.id}>{listNumber}. {block.numbered_list_item.rich_text[0]?.plain_text} <br /></span>;
-       -->
+            switch (block.type) {
+               case 'paragraph':
+                  return <p class="py-6 text-sm">{block.paragraph.rich_text[0]?.plain_text}</p>
+               case 'heading_1':
+                  return <h1 class="text-3xl font-bold py-4">{block.heading_1.rich_text[0].plain_text}</h1>
+               case 'heading_2':
+                  return <h2 class="text-2xl font-bold py-4">{block.heading_2.rich_text[0].plain_text}</h2>
+               case 'heading_3':
+                  return <h3 class="text-xl font-bold py-2">{block.heading_3.rich_text[0].plain_text}</h3>
+               case 'bulleted_list_item':
+                  return <p class="py-1 text-sm">{block.bulleted_list_item.rich_text[0]?.plain_text}</p>
+               case 'numbered_list_item':
+                  return (
+                     listNumber++,
+                     (
+                        <span class="py-1 text-sm">
+                           {listNumber}. {block.numbered_list_item.rich_text[0]?.plain_text} <br />
+                        </span>
+                     )
+                  )
+               default:
+                  return null
+            }
+         })
+      }
+   </div>
 </Layout>
