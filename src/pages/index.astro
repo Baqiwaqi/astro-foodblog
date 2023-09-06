@@ -29,7 +29,10 @@ const posts = response.results as Post[]
                      {post.properties.name.title[0].plain_text}
                   </h2>
                   {/* truncate */}
-                  <span class="line-clamp-2 text-sm text-ellipses ">
+                  <span
+                     class="line-clamp-2 text-sm text-ellipses"
+                     transition:name={post.properties.description.rich_text[0].plain_text}
+                  >
                      {post.properties.description.rich_text[0].plain_text}
                   </span>
                </a>
