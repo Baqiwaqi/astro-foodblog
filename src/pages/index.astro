@@ -1,37 +1,40 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
-import { notion } from '../lib/notion/client';
-import type { Post } from '../types/post';
+import Layout from '../layouts/Layout.astro'
+import { notion } from '../lib/notion/client'
+import type { Post } from '../types/post'
 
 const response = await notion.databases.query({
-      database_id: import.meta.env.NOTION_DATABASE_ID,
-   })
-  
+   database_id: import.meta.env.NOTION_DATABASE_ID,
+})
+
 const posts = response.results as Post[]
 ---
 
 <Layout title="Madam Joanne">
    <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-         {posts.map((post: Post) => {
+      {
+         posts.map((post: Post) => {
             return (
                <a
-                href={`/recipe/${post.id}`} 
-                class="flex flex-col p-4 border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out cursor-pointer">
-                     <img
-                        class="rounded-lg max-h-64 w-full object-cover"
-                        src={post.properties.URL.url}
-                        height="200"
-                        alt={post.id}
-                     />
-                     <h2 class='text-lg font-semibold mb-2'
-                     >{post.properties.name.title[0].plain_text}</h2>
-                     {/* truncate */}
-                     <span class="line-clamp-2 text-sm text-ellipses ">
-                        {post.properties.description.rich_text[0].plain_text}
-                     </span>
+                  href={`/recipe/${post.id}`}
+                  class="flex flex-col p-4 border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out cursor-pointer"
+               >
+                  <img
+                     class="rounded-lg max-h-64 w-full object-cover"
+                     src={post.properties.URL.url}
+                     height="200"
+                     alt={post.id}
+                  />
+                  <h2 class="text-lg font-semibold mb-2" transition:name={post.properties.name.title[0].plain_text}>
+                     {post.properties.name.title[0].plain_text}
+                  </h2>
+                  {/* truncate */}
+                  <span class="line-clamp-2 text-sm text-ellipses ">
+                     {post.properties.description.rich_text[0].plain_text}
+                  </span>
                </a>
             )
-         })}
+         })
+      }
    </div>
 </Layout>
