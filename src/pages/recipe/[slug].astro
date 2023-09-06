@@ -1,44 +1,39 @@
 ---
 export const prerender = true
 
-import type { GetStaticPaths } from "astro";
-import Layout from '../../layouts/Layout.astro';
-import Card from '../../components/Card.astro';
-import { notion } from '../../lib/notion/client';
-import type { Block } from '../../types/block';
-import type { Post } from '../../types/post';
+import Layout from '../../layouts/Layout.astro'
+import { notion } from '../../lib/notion/client'
+import type { Block } from '../../types/block'
+import type { Post } from '../../types/post'
 
-
-export async  function getStaticPaths()  {
+export async function getStaticPaths() {
    const response = await notion.databases.query({
       database_id: import.meta.env.NOTION_DATABASE_ID,
    })
-  
+
    const posts = response.results as Post[]
-   
+
    return posts.map((post) => ({
-         params: {
-            slug: post.id,
-         },
-      }))
-    
+      params: {
+         slug: post.id,
+      },
+   }))
 }
 
-const { slug } = Astro.params as { slug: string };
-
+const { slug } = Astro.params as { slug: string }
 
 const response = await notion.pages.retrieve({
-      page_id: slug,
-   });
-   // get block children
-   const blockChildren = await notion.blocks.children.list({
-      block_id: slug,
-   });
+   page_id: slug,
+})
+// get block children
+const blockChildren = await notion.blocks.children.list({
+   block_id: slug,
+})
 
-   const blocks = blockChildren.results as Block[];
-   const post = response as Post;
+const blocks = blockChildren.results as Block[]
+const post = response as Post
 
-   let listNumber = 0;
+let listNumber = 0
 ---
 
 <Layout title={post.properties.name.title[0].plain_text}>
@@ -49,61 +44,83 @@ const response = await notion.pages.retrieve({
          alt={post.id}
          width={486}
          height={686}
-         style={{ objectFit: 'cover' }
-         }
+         style={{ objectFit: 'cover' }}
       />
       <div>
-         <h1 class="text-6xl font-bold py-6">{post.properties.name.title[0].plain_text}</h1>
-         <span class="line-clamp-2 text-sm text-ellipses ">
+         <h1 class="text-6xl font-bold py-6">
+            {post.properties.name.title[0].plain_text}
+         </h1>
+         <span class="line-clamp-2 text-sm text-ellipses">
             {post.properties.description.rich_text[0].plain_text}
          </span>
          <div class="flex gap-12 py-6">
             {/* clock icon */}
             <div class="flex gap-2">
-               <!-- <Icons.clock className="h-5 w-5" /> -->
-               <span class="text-sm ">{post.properties.time_in_minutes.rich_text[0]?.plain_text}</span>
+               <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  x="0px"
+                  y="0px"
+                  width="100"
+                  height="100"
+                  viewBox="0 0 24 24"
+                  class="h-5 w-5"
+               >
+                  <path
+                     d="M 12 2 C 6.4889971 2 2 6.4889971 2 12 C 2 17.511003 6.4889971 22 12 22 C 17.511003 22 22 17.511003 22 12 C 22 6.4889971 17.511003 2 12 2 z M 12 4 C 16.430123 4 20 7.5698774 20 12 C 20 16.430123 16.430123 20 12 20 C 7.5698774 20 4 16.430123 4 12 C 4 7.5698774 7.5698774 4 12 4 z M 11 6 L 11 12.414062 L 15.292969 16.707031 L 16.707031 15.292969 L 13 11.585938 L 13 6 L 11 6 z"
+                  ></path>
+               </svg>
+
+               <span class="text-sm">{post.properties.time_in_minutes.rich_text[0]?.plain_text}</span>
             </div>
-            {/* people icon */}
             <div class="flex gap-2">
-               <!-- <Icons.people className="h-5 w-5" /> -->
-               <span class="text-sm ">{post.properties.servings.rich_text[0]?.plain_text}</span>
+               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5">
+                  <path
+                     d="M3 19H1V18C1 16.1362 2.27477 14.57 4 14.126M6 10.8293C4.83481 10.4175 4 9.30623 4 8.00001C4 6.69379 4.83481 5.58255 6 5.17072M21 19H23V18C23 16.1362 21.7252 14.57 20 14.126M18 5.17072C19.1652 5.58255 20 6.69379 20 8.00001C20 9.30623 19.1652 10.4175 18 10.8293M10 14H14C16.2091 14 18 15.7909 18 18V19H6V18C6 15.7909 7.79086 14 10 14ZM15 8C15 9.65685 13.6569 11 12 11C10.3431 11 9 9.65685 9 8C9 6.34315 10.3431 5 12 5C13.6569 5 15 6.34315 15 8Z"
+                     stroke="#000000"
+                     stroke-width="1.5"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"></path>
+               </svg>
+               <span class="text-sm">{post.properties.servings.rich_text[0]?.plain_text}</span>
             </div>
          </div>
       </div>
+      <div class="py-6">
+         {
+            blocks.map((block) => {
+               if (block.type !== 'numbered_list_item') {
+                  listNumber = 0
+               }
+
+               switch (block.type) {
+                  case 'paragraph':
+                     return <p class="py-6 text-sm">{block.paragraph.rich_text[0]?.plain_text}</p>
+                  case 'heading_1':
+                     return <h1 class="text-3xl font-bold py-4">{block.heading_1.rich_text[0].plain_text}</h1>
+                  case 'heading_2':
+                     return <h2 class="text-2xl font-bold py-4">{block.heading_2.rich_text[0].plain_text}</h2>
+                  case 'heading_3':
+                     return <h3 class="text-xl font-bold py-2">{block.heading_3.rich_text[0].plain_text}</h3>
+                  case 'bulleted_list_item':
+                     return <p class="py-1 text-sm">{block.bulleted_list_item.rich_text[0]?.plain_text}</p>
+                  case 'numbered_list_item':
+                     return (
+                        listNumber++,
+                        (
+                           <span class="py-1 text-sm">
+                              {listNumber}. {block.numbered_list_item.rich_text[0]?.plain_text} <br />
+                           </span>
+                        )
+                     )
+                  default:
+                     return null
+               }
+            })
+         }
+      </div>
    </div>
-   <!-- <div class="py-6">
-      {blocks.map((block) => {
 
-         if (block.type !== "numbered_list_item") {
-            listNumber = 0;
-         }
-
-         switch (block.type) {
-            case "paragraph":
-               return <Paragraph block={block} />;
-            case "heading_1":
-               return <Heading1 block={block} />;
-            case "heading_2":
-               return <Heading2 block={block} />;
-            case "heading_3":
-               return <Heading3 block={block} />;
-            case "bulleted_list_item":
-               return <BulletedListItem block={block} />;
-            case "numbered_list_item":
-               return (
-                  listNumber++,
-                  <NumberedListItem block={block} listNumber={listNumber} />
-               );
-            default:
-               return null;
-         }
-      })}
-   </div> -->
-</div>
-
-
-</Layout>
-<!-- 
+   <!-- 
 const Paragraph = ({ block }: { block: Block }) => <p className="py-6 text-sm" key={block.id}>{block.paragraph.rich_text[0]?.plain_text}</p>;
 const Heading1 = ({ block }: { block: Block }) => <h1 className="text-3xl font-bold py-4" key={block.id}>{block.heading_1.rich_text[0].plain_text}</h1>;
 const Heading2 = ({ block }: { block: Block }) => <h2 className="text-2xl font-bold py-4" key={block.id}>{block.heading_2.rich_text[0].plain_text}</h2>;
@@ -111,3 +128,4 @@ const Heading3 = ({ block }: { block: Block }) => <h3 className="text-xl font-bo
 const BulletedListItem = ({ block }: { block: Block }) => <p className="py-1 text-sm" key={block.id}>{block.bulleted_list_item.rich_text[0]?.plain_text}</p>;
 const NumberedListItem = ({ block, listNumber }: { block: Block, listNumber: number }) => <span className="py-1 text-sm" key={block.id}>{listNumber}. {block.numbered_list_item.rich_text[0]?.plain_text} <br /></span>;
        -->
+</Layout>
