@@ -1,24 +1,24 @@
 ---
-export const prerender = true
+// export const prerender = true
 
 import Layout from '../../layouts/Layout.astro'
 import { notion } from '../../lib/notion/client'
 import type { Block } from '../../types/block'
 import type { Post } from '../../types/post'
 
-export async function getStaticPaths() {
-   const response = await notion.databases.query({
-      database_id: import.meta.env.NOTION_DATABASE_ID,
-   })
+// export async function getStaticPaths() {
+//    const response = await notion.databases.query({
+//       database_id: import.meta.env.NOTION_DATABASE_ID,
+//    })
 
-   const posts = response.results as Post[]
+//    const posts = response.results as Post[]
 
-   return posts.map((post) => ({
-      params: {
-         slug: post.id,
-      },
-   }))
-}
+//    return posts.map((post) => ({
+//       params: {
+//          slug: post.id,
+//       },
+//    }))
+// }
 
 const { slug } = Astro.params as { slug: string }
 
